@@ -19,13 +19,13 @@
       <!--
         prop相当于绑定字段~
       -->
-      <el-table-column type="selection" width="55" />
-      <el-table-column align="center" label="ID" width="55" type="index" fixed/>
+      <el-table-column type="selection" width="45" />
+      <el-table-column align="center" label="ID" width="45" type="index" fixed/>
       <el-table-column prop="name" label="名称" width="180" align="center" fixed />
-      <el-table-column prop="author" label="作者" width="100" align="center" />
-      <el-table-column prop="authorNational" label="作者国籍" width="110" align="center" />
+      <el-table-column prop="author" label="作者" width="80" align="center" />
+      <el-table-column prop="authorNational" label="作者国籍" width="70" align="center" />
       <el-table-column prop="intro" label="简介" width="300" align="center" />
-      <el-table-column prop="dformat" label="文件格式" width="80" align="center" />
+      <el-table-column prop="dformat" label="文件格式" width="70" align="center" />
       <el-table-column prop="dclass" label="文件类型" width="80" align="center" />
       <el-table-column prop="createBy" label="创建者" width="80" align="center" />
       <el-table-column prop="createDate" label="创建时间" width="210" align="center" sortable >
