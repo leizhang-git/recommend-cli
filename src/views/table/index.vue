@@ -80,14 +80,64 @@
 
     <Pagination v-show="total>0" :total="total" :page.sync="params.pageNum" :limit.sync="params.pageSize" @pagination="handleDocumentList" />
 
+    <!-- 新增弹出框
+      rules：规则
+      label-position：标签位置
+      placeholder:占位符、提示
+      filterable：搜索
+    -->
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="right" label-width="80px" style="width: 400px; margin-left:50px;">
+        <el-form-item label="资料名称" prop="name">
+          <el-input v-model="temp.name" />
+        </el-form-item>
+        <el-form-item label="作者姓名" prop="author">
+          <el-input v-model="temp.author" />
+        </el-form-item>
+        <el-form-item label="作者国籍" prop="authorNational">
+          <el-select v-model="temp.authorNational" filterable class="filter-item" placeholder="请选择">
+            <el-option v-for="(country, i) in countryList" :key="country + i" :label="country" :value="country" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="简介" prop="intro">
+          <el-input v-model="temp.intro" :autosize="{ minRows: 0, maxRows: 10}" type="textarea" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="文件类型" prop="dClass">
+          <el-input v-model="temp.dClass" />
+        </el-form-item>
+        <el-form-item label="上传文件" prop="resource">
+          <el-radio-group v-model="ruleForm.resource">
+            <el-radio label="1">本地上传</el-radio>
+            <el-radio label="2">远程上传</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <div v-if="ruleForm.resource === '2'">
+          <el-form-item label="远程地址" prop="remoteAddr">
+            <el-input v-model="temp.remoteAddr" />
+          </el-form-item>
+        </div>
+        <div v-else>
+          <el-upload class="upload-demo" ref="upload" action="" :on-preview="handlePreview" :on-remove="handleRemove" :auto-upload="false">
+            <el-button slot="trigger" size="small" type="primary" style="margin-left:100%;">选取文件</el-button>
+            <el-button style="margin-left: 25%;" size="small" type="success" @click="uploadDocument">上传到服务器</el-button>
+            <div slot="tip" style="margin-left: 20%" class="el-upload__tip">上传文件最大限制为100MB！</div>
+          </el-upload>
+        </div>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取消</el-button>
+        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { deleteById, exportExcel, getAllDClass, getList, searchData } from '@/api/table'
+import { deleteById, exportExcel, getAllDClass, getList, searchData, uploadDocument } from '@/api/table'
 import { myTimeToLocal } from '@/utils/TimeUtil'
 import Pagination from '@/components/Pagination.vue'
 import waves from '@/directive/waves'
+import { nationList } from '@/utils/NationUtil'
 
 export default {
   filters: {
@@ -138,15 +188,48 @@ export default {
       params: {
         pageNum: 1,
         pageSize: 20
-      }
+      },
+      // 用于鉴别时新增还是编辑
+      textMap: {
+        update: 'Edit',
+        create: 'Create'
+      },
+      // 必选的内容，没有选择的时候需要告警！
+      rules: {
+        name: [{ required: true, message: '名称必须填写！', trigger: 'change' }],
+        dClass: [{ required: true, message: '类型必须填写！', trigger: 'change' }],
+        resource: [{ required: true, message: '该选项是必选的！', trigger: 'change' }]
+      },
+      // 新增框内的内容
+      temp: {
+        id: undefined,
+        name: '',
+        remoteAddr: '',
+        author: '',
+        authorNational: '',
+        intro: '',
+        dClass: ''
+      },
+      // 国家列表
+      countryList: [],
+      // 上传选项
+      ruleForm: {
+        // 2默认是远程地址
+        resource: '2'
+      },
+      // 上传文件
+      fileList: [{ name: '', url: '' }],
+      buttonUse: 'disabled'
     }
   },
   created() {
     this.handleDocumentList()
     this.getAllType()
+    this.getCountryList()
   },
   methods: {
     myTimeToLocal,
+    nationList,
     // 展示列表页
     handleDocumentList() {
       this.listLoading = true
@@ -219,6 +302,21 @@ export default {
         // $refs 是所有注册过 ref 的集合（对象）
         this.$refs['dataForm'].clearValidate()
       })
+    },
+    // 获取国家列表
+    getCountryList() {
+      this.countryList = [].concat(nationList())
+      console.log(this.countryList)
+    },
+    // 上传资源
+    uploadDocument() {
+      uploadDocument()
+    },
+    handleRemove(file, fileList) {
+      console.log(file, fileList)
+    },
+    handlePreview(file) {
+      console.log(file)
     }
   }
 }

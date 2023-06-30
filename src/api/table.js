@@ -48,3 +48,14 @@ export function insertDocument(data) {
     data
   })
 }
+
+export function uploadDocument(file) {
+  return request({
+    url: '/document/upload',
+    method: 'post',
+    header: {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    },
+    file
+  })
+}
