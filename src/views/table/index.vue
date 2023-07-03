@@ -12,15 +12,15 @@
       <!-- 输入框-->
       <el-input v-model="documentModel.name" :placeholder="$t('table.name')" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <!-- 资源类型-->
-      <el-select v-model="documentModel.dClass" :placeholder="$t('table.type')" clearable style="width: 90px; margin-left:15px;" class="filter-item">
-        <el-option v-for="(label, i) in dClass" :key="i + label" :label="label" :value="label" />
+      <el-select v-model="documentModel.dclass" :placeholder="$t('table.type')" clearable style="width: 90px; margin-left:15px;" class="filter-item">
+        <el-option v-for="(label, i) in dclass" :key="i + label" :label="label" :value="label" />
       </el-select>
       <!-- 国籍选项-->
       <el-select v-model="documentModel.authorNational" :placeholder="$t('table.national')" clearable class="filter-item" style="width: 130px; margin-left:15px;">
         <el-option v-for="(national, i) in nationals" :key="i + national" :label="national" :value="national" />
       </el-select>
       <!-- 搜索-->
-      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter" style="margin-left:10px;">
+      <el-button class="filter-item" type="primary" icon="el-icon-search" style="margin-left:10px;" @click="handleFilter">
         {{ $t('table.search') }}
       </el-button>
       <!-- 添加-->
@@ -71,7 +71,7 @@
       </el-table-column>
       <el-table-column label="操作" width="230" align="center" fixed="right">
         <template slot-scope="scope">
-          <el-button size="mini" type="primary" @click="handleEdit(scope)">修改</el-button>
+          <el-button size="mini" type="primary" @click="handleEdit(scope.row)">修改</el-button>
           <el-button size="mini" type="danger" @click="handleDelete(scope)">删除</el-button>
           <el-button size="mini" type="danger" @click="handleDownload(scope)">下载</el-button>
         </template>
@@ -81,12 +81,17 @@
     <Pagination v-show="total>0" :total="total" :page.sync="params.pageNum" :limit.sync="params.pageSize" @pagination="handleDocumentList" />
 
     <!-- 新增弹出框
+      el-dialog：对话框
       rules：规则
       label-position：标签位置
       placeholder:占位符、提示
       filterable：搜索
+      :visible.sync 表示弹框的展示和隐藏
     -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+      <!--
+        this.$refs['dataForm'] 可以在方法内部直接调到这里来！
+      -->
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="right" label-width="80px" style="width: 400px; margin-left:50px;">
         <el-form-item label="资料名称" prop="name">
           <el-input v-model="temp.name" />
@@ -102,8 +107,8 @@
         <el-form-item label="简介" prop="intro">
           <el-input v-model="temp.intro" :autosize="{ minRows: 0, maxRows: 10}" type="textarea" placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="文件类型" prop="dClass">
-          <el-input v-model="temp.dClass" />
+        <el-form-item label="文件类型" prop="dclass">
+          <el-input v-model="temp.dclass" />
         </el-form-item>
         <el-form-item label="上传文件" prop="resource">
           <el-radio-group v-model="ruleForm.resource">
@@ -117,7 +122,7 @@
           </el-form-item>
         </div>
         <div v-else>
-          <el-upload class="upload-demo" ref="upload" action="" :on-preview="handlePreview" :on-remove="handleRemove" :auto-upload="false">
+          <el-upload ref="upload" class="upload-demo" action="" :on-preview="handlePreview" :on-remove="handleRemove" :auto-upload="false">
             <el-button slot="trigger" size="small" type="primary" style="margin-left:100%;">选取文件</el-button>
             <el-button style="margin-left: 25%;" size="small" type="success" @click="uploadDocument">上传到服务器</el-button>
             <div slot="tip" style="margin-left: 20%" class="el-upload__tip">上传文件最大限制为100MB！</div>
@@ -129,11 +134,21 @@
         <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">确定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
+      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
+        <el-table-column prop="key" label="Channel" />
+        <el-table-column prop="pv" label="Pv" />
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogPvVisible = false">确定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { deleteById, exportExcel, getAllDClass, getList, searchData, uploadDocument } from '@/api/table'
+import { deleteById, exportExcel, getAllDClass, getList, insertDocument, searchData, uploadDocument } from '@/api/table'
 import { myTimeToLocal } from '@/utils/TimeUtil'
 import Pagination from '@/components/Pagination.vue'
 import waves from '@/directive/waves'
@@ -160,7 +175,7 @@ export default {
       downloadLoading: false,
       listLoading: true,
       // 类型列表
-      dClass: [],
+      dclass: [],
       // 国家列表
       nationals: [],
       // 搜索时用到的DTO
@@ -170,8 +185,8 @@ export default {
         author: '',
         authorNational: '',
         intro: '',
-        dFormat: '',
-        dClass: '',
+        dformat: '',
+        dclass: '',
         page: 1,
         limit: 20
       },
@@ -194,11 +209,14 @@ export default {
         update: 'Edit',
         create: 'Create'
       },
+      // 弹出框显示隐藏判断
+      dialogPvVisible: false,
+      pvData: [],
       // 必选的内容，没有选择的时候需要告警！
       rules: {
-        name: [{ required: true, message: '名称必须填写！', trigger: 'change' }],
-        dClass: [{ required: true, message: '类型必须填写！', trigger: 'change' }],
-        resource: [{ required: true, message: '该选项是必选的！', trigger: 'change' }]
+        name: [{ required: true, message: '名称必须填写！', trigger: 'blur' }],
+        dclass: [{ required: true, message: '类型必须填写！', trigger: 'blur' }]
+        // resource: [{ required: true, message: '上传文件类型选项是必选的！', trigger: 'blur' }]
       },
       // 新增框内的内容
       temp: {
@@ -208,7 +226,7 @@ export default {
         author: '',
         authorNational: '',
         intro: '',
-        dClass: ''
+        dclass: ''
       },
       // 国家列表
       countryList: [],
@@ -243,7 +261,7 @@ export default {
     // 获取所有类型
     getAllType() {
       getAllDClass().then(response => {
-        this.dClass = response.data
+        this.dclass = response.data
       })
     },
     // 删除数据
@@ -289,12 +307,13 @@ export default {
         author: '',
         authorNational: '',
         intro: '',
-        dClass: ''
+        dclass: ''
       }
     },
-    // 新建
+    // 新建按钮
     handleCreate() {
       this.resetTemp()
+      // 修改下当前状态
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       // 当数据被修改后使用这个方法,会回调获取更新后的dom再渲染出来
@@ -317,6 +336,55 @@ export default {
     },
     handlePreview(file) {
       console.log(file)
+    },
+    // 新建保存
+    createData() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          insertDocument(this.temp).then(() => {
+            console.log(this.temp)
+            this.documentList.unshift(this.temp)
+            this.dialogFormVisible = false
+            this.$notify({
+              title: '成功',
+              message: '创建成功',
+              type: 'success',
+              duration: 2000
+            })
+          })
+        }
+      })
+    },
+    // 修改
+    handleEdit(row) {
+      this.temp = Object.assign({}, row) // copy obj
+      // 用于判断弹出框是新建还是修改
+      this.dialogStatus = 'update'
+      this.dialogFormVisible = true
+      // 当数据被修改后使用这个方法,会回调获取更新后的dom再渲染出来
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    // 修改保存
+    updateData() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          const tempData = Object.assign({}, this.temp)
+          console.log(tempData)
+          insertDocument(tempData).then(() => {
+            const index = this.documentList.findIndex(v => v.id === this.temp.id)
+            this.documentList.splice(index, 1, this.temp)
+            this.dialogFormVisible = false
+            this.$notify({
+              title: '成功',
+              message: '更新成功',
+              type: 'success',
+              duration: 2000
+            })
+          })
+        }
+      })
     }
   }
 }
