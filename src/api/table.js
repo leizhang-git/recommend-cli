@@ -27,6 +27,7 @@ export function exportExcel(data) {
   return request({
     url: '/document/exportExcel',
     method: 'post',
+    responseType: 'blob',
     header: {
       headers: { 'Content-Type': 'application/x-download' }
     },

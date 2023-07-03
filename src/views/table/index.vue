@@ -296,8 +296,20 @@ export default {
     handleExport() {
       this.downloadLoading = true
       exportExcel(this.documentList)
-        .catch(() => { this.downloadLoading = false }
-        )
+        .then((response) => {
+          const blob = new Blob([response], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8'
+          })
+          const a = document.createElement('a')
+          const href = window.URL.createObjectURL(blob)
+          a.href = href
+          a.download = '资源列表'
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          window.URL.revokeObjectURL(href)
+        })
+        .catch(() => { this.downloadLoading = false })
     },
     resetTemp() {
       this.temp = {

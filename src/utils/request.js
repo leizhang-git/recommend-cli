@@ -44,7 +44,10 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    // if(response.headers.contentType ===
+    console.log(response.headers['content-type'])
+    if (response.headers['content-type'] === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8') {
+      return res
+    }
     // if the custom code is not 20000, it is judged as an error.
     if (res.status !== 1) {
       Message({
@@ -66,6 +69,7 @@ service.interceptors.response.use(
           })
         })
       }
+      console.log('>>>>>>>>>>>>>>>>>>111')
       return Promise.reject(new Error(res.message || 'Error'))
     } else {
       return res
