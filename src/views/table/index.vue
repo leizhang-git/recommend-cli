@@ -261,7 +261,10 @@ export default {
     // 获取所有类型
     getAllType() {
       getAllDClass().then(response => {
-        this.dclass = response.data
+        const tmp = response.data
+        this.dclass = tmp.filter(function(s) {
+          return s && s.trim()
+        })
       })
     },
     // 删除数据
