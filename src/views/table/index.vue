@@ -309,7 +309,7 @@ export default {
           document.body.removeChild(a)
           window.URL.revokeObjectURL(href)
         })
-        .catch(() => { this.downloadLoading = false })
+        .finally(() => { this.downloadLoading = false })
     },
     resetTemp() {
       this.temp = {
