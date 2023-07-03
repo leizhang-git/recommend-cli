@@ -24,9 +24,11 @@
         {{ $t('table.search') }}
       </el-button>
       <!-- 添加-->
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
-        {{ $t('table.add') }}
-      </el-button>
+      <template v-if="isAdminRole">
+        <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
+          {{ $t('table.add') }}
+        </el-button>
+      </template>
       <!-- 导出Excel-->
       <el-button :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleExport">
         {{ $t('table.export') }}
@@ -153,6 +155,7 @@ import { myTimeToLocal } from '@/utils/TimeUtil'
 import Pagination from '@/components/Pagination.vue'
 import waves from '@/directive/waves'
 import { nationList } from '@/utils/NationUtil'
+import { judgeAdminRole } from '@/utils'
 
 export default {
   filters: {
@@ -168,9 +171,11 @@ export default {
   components: { Pagination },
   data() {
     return {
+      // 是否拥有管理员角色
       tableKey: 0,
+      isAdminRole: false,
       // 展示列表
-      documentList: null,
+      documentList: [],
       // 水波纹
       downloadLoading: false,
       listLoading: true,
@@ -241,6 +246,7 @@ export default {
     }
   },
   created() {
+    this.isAdminRole = judgeAdminRole()
     this.handleDocumentList()
     this.getAllType()
     this.getCountryList()
@@ -340,7 +346,7 @@ export default {
     // 获取国家列表
     getCountryList() {
       this.countryList = [].concat(nationList())
-      console.log(this.countryList)
+      // console.log(this.countryList)
     },
     // 上传资源
     uploadDocument() {

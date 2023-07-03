@@ -44,7 +44,6 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    console.log(response.headers['content-type'])
     if (response.headers['content-type'] === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8') {
       return res
     }
@@ -69,7 +68,6 @@ service.interceptors.response.use(
           })
         })
       }
-      console.log('>>>>>>>>>>>>>>>>>>111')
       return Promise.reject(new Error(res.message || 'Error'))
     } else {
       return res

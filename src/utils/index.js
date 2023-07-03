@@ -140,3 +140,7 @@ export function removeClass(ele, cls) {
     ele.className = ele.className.replace(reg, ' ')
   }
 }
+
+export function judgeAdminRole() {
+  return JSON.parse(localStorage.getItem('USERINFO')).roles.includes('admin')
+}
