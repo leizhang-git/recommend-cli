@@ -7,18 +7,31 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 export const constantRoutes = [
+  // 重定向
+  {
+    path: '/redirect',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '/redirect/:path(.*)',
+        component: (resolve) => require(['@/views/redirect'], resolve)
+      }
+    ]
+  },
+  // 登录
   {
     path: '/login',
     component: () => import('@/views/login/index'),
     hidden: true
   },
-
+  // 404
   {
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true
   },
-
+  // 401
   {
     path: '/',
     component: Layout,
@@ -30,7 +43,21 @@ export const constantRoutes = [
       meta: { title: '仪表板', icon: 'dashboard' }
     }]
   },
-
+  // 首页
+  {
+    path: '',
+    component: Layout,
+    redirect: 'index',
+    children: [
+      {
+        path: 'index',
+        component: (resolve) => require(['@/views/index'], resolve),
+        name: '首页',
+        meta: { title: '首页', icon: 'dashboard', noCache: true, affix: true }
+      }
+    ]
+  },
+  // 资料管理
   {
     path: '/example',
     component: Layout,
@@ -43,25 +70,21 @@ export const constantRoutes = [
         name: 'Table1',
         component: () => import('@/views/table/index'),
         meta: { title: '资料列表', icon: 'table' }
-      },
-      {
-        path: 'table',
-        name: 'Table2',
-        component: () => import('@/views/table/index'),
-        meta: { title: '本地资料', icon: 'table' }
       }
     ]
   },
-
+  // 用户中心
   {
-    path: '/form',
+    path: '/user',
     component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
     children: [
       {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: '上传资料', icon: 'form' }
+        path: 'profile',
+        component: (resolve) => require(['@/views/system/user/profile/index'], resolve),
+        name: 'Profile',
+        meta: { title: '个人中心', icon: 'user' }
       }
     ]
   },
@@ -71,7 +94,8 @@ export const constantRoutes = [
 ]
 
 const createRouter = () => new Router({
-  // mode: 'history', // require service support
+  mode: 'history', // 去掉url中的#
+  base: process.env.BASE_URL,
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })
