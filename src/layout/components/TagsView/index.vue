@@ -9,25 +9,26 @@
         :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
         tag="span"
         class="tags-view-item"
+        :style="activeStyle(tag)"
         @click.middle.native="!isAffix(tag)?closeSelectedTag(tag):''"
         @contextmenu.prevent.native="openMenu(tag,$event)"
       >
-        {{ generateTitle(tag.title) }}
+        {{ tag.title }}
         <span v-if="!isAffix(tag)" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" />
       </router-link>
     </scroll-pane>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
-      <li @click="refreshSelectedTag(selectedTag)">{{ $t('tagsView.refresh') }}</li>
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">{{ $t('tagsView.close') }}</li>
-      <li @click="closeOthersTags">{{ $t('tagsView.closeOthers') }}</li>
-      <li @click="closeAllTags(selectedTag)">{{ $t('tagsView.closeAll') }}</li>
+      <li @click="refreshSelectedTag(selectedTag)">刷新页面</li>
+      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">关闭当前</li>
+      <li @click="closeOthersTags">关闭其他</li>
+      <li v-if="!isLastView()" @click="closeRightTags">关闭右侧</li>
+      <li @click="closeAllTags(selectedTag)">关闭所有</li>
     </ul>
   </div>
 </template>
 
 <script>
 import ScrollPane from './ScrollPane'
-import { generateTitle } from '@/utils/i18n'
 import path from 'path'
 
 export default {
@@ -47,6 +48,9 @@ export default {
     },
     routes() {
       return this.$store.state.permission.routes
+    },
+    theme() {
+      return this.$store.state.settings.theme
     }
   },
   watch: {
@@ -67,12 +71,25 @@ export default {
     this.addTags()
   },
   methods: {
-    generateTitle, // generateTitle by vue-i18n
     isActive(route) {
       return route.path === this.$route.path
     },
+    activeStyle(tag) {
+      if (!this.isActive(tag)) return {}
+      return {
+        'background-color': this.theme,
+        'border-color': this.theme
+      }
+    },
     isAffix(tag) {
       return tag.meta && tag.meta.affix
+    },
+    isLastView() {
+      try {
+        return this.selectedTag.fullPath === this.visitedViews[this.visitedViews.length - 1].fullPath
+      } catch (err) {
+        return false
+      }
     },
     filterAffixTags(routes, basePath = '/') {
       let tags = []
@@ -143,15 +160,22 @@ export default {
         }
       })
     },
+    closeRightTags() {
+      this.$store.dispatch('tagsView/delRightTags', this.selectedTag).then(visitedViews => {
+        if (!visitedViews.find(i => i.fullPath === this.$route.fullPath)) {
+          this.toLastView(visitedViews)
+        }
+      })
+    },
     closeOthersTags() {
-      this.$router.push(this.selectedTag)
+      this.$router.push(this.selectedTag).catch(() => {})
       this.$store.dispatch('tagsView/delOthersViews', this.selectedTag).then(() => {
         this.moveToCurrentTag()
       })
     },
     closeAllTags(view) {
       this.$store.dispatch('tagsView/delAllViews').then(({ visitedViews }) => {
-        if (this.affixTags.some(tag => tag.path === view.path)) {
+        if (this.affixTags.some(tag => tag.path === this.$route.path)) {
           return
         }
         this.toLastView(visitedViews, view)

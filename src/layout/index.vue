@@ -34,6 +34,8 @@ export default {
   mixins: [ResizeMixin],
   computed: {
     ...mapState({
+      theme: state => state.settings.theme,
+      sideTheme: state => state.settings.sideTheme,
       sidebar: state => state.app.sidebar,
       device: state => state.app.device,
       showSettings: state => state.settings.showSettings,

@@ -1,4 +1,8 @@
 <template>
+  <!--
+    el-menu-item: 用作路由跳转
+
+  -->
   <div v-if="!item.hidden">
     <template v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
@@ -13,8 +17,8 @@
         <item v-if="item.meta" :icon="item.meta && item.meta.icon" :title="item.meta.title" />
       </template>
       <sidebar-item
-        v-for="(child, i) in item.children"
-        :key="child.path + i"
+        v-for="child in item.children"
+        :key="child.path"
         :is-nest="true"
         :item="child"
         :base-path="resolvePath(child.path)"
@@ -51,13 +55,12 @@ export default {
     }
   },
   data() {
-    // To fix https://github.com/PanJiaChen/vue-admin-template/issues/237
-    // TODO: refactor with render function
     this.onlyOneChild = null
     return {}
   },
   methods: {
     hasOneShowingChild(children = [], parent) {
+      console.log(parent)
       const showingChildren = children.filter(item => {
         if (item.hidden) {
           return false
@@ -82,6 +85,7 @@ export default {
       return false
     },
     resolvePath(routePath) {
+      console.log(routePath)
       if (isExternal(routePath)) {
         return routePath
       }

@@ -52,8 +52,15 @@ export default {
       this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {
-      await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      this.$confirm('确定注销并退出系统吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$store.dispatch('LogOut').then(() => {
+          location.href = process.env.BASE_URL + 'index'
+        })
+      }).catch(() => {})
     }
   }
 }
@@ -82,6 +89,16 @@ export default {
 
   .breadcrumb-container {
     float: left;
+  }
+
+  .topmenu-container {
+    position: absolute;
+    left: 50px;
+  }
+
+  .errLog-container {
+    display: inline-block;
+    vertical-align: top;
   }
 
   .right-menu {
