@@ -4,23 +4,23 @@
 <!--      {{ $t('permission.addRole') }}-->
 <!--    </el-button>-->
 
-<!--    <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>-->
-<!--      <el-table-column align="center" label="Role Key" width="220">-->
+<!--    <el-resource :data="rolesList" style="width: 100%;margin-top:30px;" border>-->
+<!--      <el-resource-column align="center" label="Role Key" width="220">-->
 <!--        <template slot-scope="scope">-->
 <!--          {{ scope.row.key }}-->
 <!--        </template>-->
-<!--      </el-table-column>-->
-<!--      <el-table-column align="center" label="Role Name" width="220">-->
+<!--      </el-resource-column>-->
+<!--      <el-resource-column align="center" label="Role Name" width="220">-->
 <!--        <template slot-scope="scope">-->
 <!--          {{ scope.row.name }}-->
 <!--        </template>-->
-<!--      </el-table-column>-->
-<!--      <el-table-column align="header-center" label="Description">-->
+<!--      </el-resource-column>-->
+<!--      <el-resource-column align="header-center" label="Description">-->
 <!--        <template slot-scope="scope">-->
 <!--          {{ scope.row.description }}-->
 <!--        </template>-->
-<!--      </el-table-column>-->
-<!--      <el-table-column align="center" label="Operations">-->
+<!--      </el-resource-column>-->
+<!--      <el-resource-column align="center" label="Operations">-->
 <!--        <template slot-scope="scope">-->
 <!--          <el-button type="primary" size="small" @click="handleEdit(scope)">-->
 <!--            {{ $t('permission.editPermission') }}-->
@@ -29,8 +29,8 @@
 <!--            {{ $t('permission.delete') }}-->
 <!--          </el-button>-->
 <!--        </template>-->
-<!--      </el-table-column>-->
-<!--    </el-table>-->
+<!--      </el-resource-column>-->
+<!--    </el-resource>-->
 
 <!--    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'Edit Role':'New Role'">-->
 <!--      <el-form :model="role" label-width="80px" label-position="left">-->
@@ -273,7 +273,7 @@
 
 <!--<style lang="scss" scoped>-->
 <!--.app-container {-->
-<!--  .roles-table {-->
+<!--  .roles-resource {-->
 <!--    margin-top: 30px;-->
 <!--  }-->
 <!--  .permission-tree {-->

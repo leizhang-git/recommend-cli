@@ -65,14 +65,14 @@ export const constantRoutes = [
   {
     path: '/example',
     component: Layout,
-    redirect: '/example/table',
+    redirect: '/example/resource',
     name: 'Example',
     meta: { title: '资料管理', icon: 'el-icon-s-help' },
     children: [
       {
-        path: 'table',
-        name: 'Table1',
-        component: () => import('@/views/table/index'),
+        path: 'resource',
+        name: 'resource',
+        component: () => import('@/views/resource/index'),
         meta: { title: '资料列表', icon: 'table' }
       }
     ]

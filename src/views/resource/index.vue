@@ -10,32 +10,32 @@
         clearable：输入框右边有一个删除小按钮~
       -->
       <!-- 输入框-->
-      <el-input v-model="documentModel.name" :placeholder="$t('table.name')" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="documentModel.name" :placeholder="$t('resource.name')" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <!-- 资源类型-->
-      <el-select v-model="documentModel.dclass" :placeholder="$t('table.type')" clearable style="width: 90px; margin-left:15px;" class="filter-item">
+      <el-select v-model="documentModel.dclass" :placeholder="$t('resource.type')" clearable style="width: 90px; margin-left:15px;" class="filter-item">
         <el-option v-for="(label, i) in dclass" :key="i + label" :label="label" :value="label" />
       </el-select>
       <!-- 国籍选项-->
-      <el-select v-model="documentModel.authorNational" :placeholder="$t('table.national')" clearable class="filter-item" style="width: 130px; margin-left:15px;">
+      <el-select v-model="documentModel.authorNational" :placeholder="$t('resource.national')" clearable class="filter-item" style="width: 130px; margin-left:15px;">
         <el-option v-for="(national, i) in nationals" :key="i + national" :label="national" :value="national" />
       </el-select>
       <!-- 搜索-->
       <el-button class="filter-item" type="primary" icon="el-icon-search" style="margin-left:10px;" @click="handleFilter">
-        {{ $t('table.search') }}
+        {{ $t('resource.search') }}
       </el-button>
       <!-- 添加-->
       <template v-if="isAdminRole">
         <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
-          {{ $t('table.add') }}
+          {{ $t('resource.add') }}
         </el-button>
       </template>
       <!-- 导出Excel-->
       <el-button :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleExport">
-        {{ $t('table.export') }}
+        {{ $t('resource.export') }}
       </el-button>
       <!-- 最后修改时间[打勾]-->
       <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">
-        {{ $t('table.lastModifiedDate') }}
+        {{ $t('resource.lastModifiedDate') }}
       </el-checkbox>
     </div>
     <!--    <el-button type="primary" @click="handleAddDocument">新增</el-button>-->
