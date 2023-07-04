@@ -150,7 +150,7 @@
 </template>
 
 <script>
-import { deleteById, exportExcel, getAllDClass, getList, insertDocument, searchData, uploadDocument } from '@/api/table'
+import { deleteById, exportExcel, getAllDClass, getList, insertDocument, searchData, uploadDocument } from '@/api/resource'
 import { myTimeToLocal } from '@/utils/TimeUtil'
 import Pagination from '@/components/Pagination.vue'
 import waves from '@/directive/waves'
